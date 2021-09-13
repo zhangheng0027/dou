@@ -1,24 +1,64 @@
-type_error = 0x0   # 非法牌型
-type_one = 0x1000  # 单张
-type_two = 0x2000  # 一对
-type_three = 0x3000  # 三不带
+from typing import List
 
-type_one_continuity_five = 0x4000  # 五单连
-type_one_continuity_six = 0x5000  # 六单连
-type_one_continuity_seven = 0x6000  # 7 单
-type_one_continuity_eight = 0x7000  # 8 单
-type_one_continuity_nine = 0x8000  # 9 单
-type_one_continuity_ten = 0x9000  # 10 单
-type_one_continuity_eleven = 0xA000  # 11 单
-type_one_continuity_twelve = 0xB000  # 12 单
-
-type_two_continuity_three = 0xC000  # 3 双
-type_two_continuity_four = 0xD000  # 4 双
-type_two_continuity_five = 0xE000  # 5 双
-type_two_continuity_six = 0xF000  # 6 双
-type_two_continuity_seven = 0x10000  # 7 双
-type_two_continuity_eight = 0x20000  # 8 双
-type_two_continuity_nine = 0x10000  # 9 双
-type_two_continuity_ten = 0x20000  # 10 双  不会有这么好的运气吧
+from env import cardType
 
 
+def selectCardType(cs: List):
+    cs.sort()
+
+
+def generateCardType():
+    """
+    生成
+    :return:
+    """
+    t = {}
+    generateCardType_one(t)
+    generateCardType_two(t)
+    generateCardType_other(t)
+    return t
+
+
+def generateCardType_one(t: {}):
+    """
+    生成单连
+    :param t:
+    :return:
+    """
+    cou = cardType.type_one_continuity_five
+    for i in range(5, 15):
+        for j in range(3, 16 - i):
+            ll = ''.join(['%s' % z for z in range(j, i + j)])
+            t[ll] = cou + j
+        cou = cou + 0x1000
+
+
+def generateCardType_two(t: {}):
+    """
+    生成双连
+    :param t:
+    :return:
+    """
+    cou = cardType.type_two_continuity_three
+    for i in range(3, 11):
+        for j in range(3, 16 - i):
+            ll = ''.join(['%s%s' % (z, z) for z in range(j, i + j)])
+            t[ll] = cou + j
+        cou += 0x1000
+
+
+def generateCardType_other(t: {}):
+    for i in range(3, 18):
+        t[str(i)] = cardType.type_one + i
+
+    for i in range(3, 16):
+        t[str(i) * 2] = cardType.type_two + i
+        t[str(i) * 3] = cardType.type_three + i
+        t[str(i) * 4] = cardType.type_boom + i
+
+    t['1617'] = cardType.type_boom + 17
+
+
+if __name__ == '__main__':
+    # m = generateCardType()
+    print(str(3) * 4)
