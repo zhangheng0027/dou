@@ -78,7 +78,6 @@ def selectCount(cs: List):
         return c + 1
 
     def countTwo(ar: [], minC = 53):
-        d = min(minC, oneCount(ar))
         index, cou = selectTwo(ar)
         if index < 0:
             return oneCount(ar)
@@ -86,7 +85,7 @@ def selectCount(cs: List):
             recovery(ar, index, cou, 2)
             return 53
 
-        d = min(d, minC, oneCount(ar))
+        d = min(minC, oneCount(ar))
         d = min(d, countTwo(ar, d - 1))
 
         for _ in range(0, cou - 3):
@@ -96,7 +95,7 @@ def selectCount(cs: List):
             d = min(d, countTwo(ar, d - 1))
         recovery(ar, index, 3, 2)
         return d
-    return countTwo(arr)
+    return countTwo(arr, oneCount(arr))
 
 
 if __name__ == '__main__':
