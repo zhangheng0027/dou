@@ -54,18 +54,35 @@ def selectCount(cs: List):
             return i - 1, cou
         return -1, 0
 
-    l4 = []
-    l3 = []
-    l2 = []
-    l1 = []
+    def recovery(ar: [], index, cou, de):
+        for i in range(index - cou + 1, index + 1):
+            ar[i] += de
 
+    def oneCount(ar: []):
+        index, cou = selectOne(ar)
+        # print(ar)
+        if index < 0:
+            c = 0
+            for v in ar:
+                if v > 0:
+                    c += 1
+            return c
+        c = oneCount(ar)
+        if c <= 1:
+            recovery(ar, index, cou, 1)
+            return c + 1
+        for _ in range(0, cou - 5):
+            ar[index] += 1
+            index -= 1
+            c = min(c, oneCount(ar))
+        recovery(ar, index, 5, 1)
+        return c + 1
 
-
-    return arr
+    return oneCount(arr)
 
 
 if __name__ == '__main__':
-    m = [3, 3, 4, 4, 4, 3, 5, 6, 4, 5, 7, 8, 9, 10]
+    m = [3, 4, 5, 6, 7, 8, 9, 10, 6, 7, 8, 10]
     # generateCardType_three(m)
     # a = Counter(m).most_common(5)
     print(selectCount(m))
