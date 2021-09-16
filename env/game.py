@@ -17,7 +17,8 @@ RealToEnv = {
     'A': 14, '2': 15, 'X': 16, 'D': 17
 }
 
-def generate():
+
+def generateNewCard():
     """
     :return: 获取一副新牌
     """
@@ -35,4 +36,4 @@ def generate():
 
 
 if __name__ == '__main__':
-    print(generate())
+    print(generateNewCard())
