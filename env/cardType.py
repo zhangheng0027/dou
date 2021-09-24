@@ -73,9 +73,9 @@ TypeMap = {
 
 
 def encode(a):
-    b = a & 0xFF000;
+    b = a & 0xFF000
     if TypeMap.__contains__(b):
-        return TypeMap[b], a & 0xFFF;
+        return TypeMap[b], a & 0xFFF
     return "type_error", 0
 
 
