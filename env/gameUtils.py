@@ -1,6 +1,11 @@
+import os
+import pickle
 from typing import List
 
 from env import game, cardType
+
+cacheCardCount = {}
+flagChangeCache = False
 
 
 def select(cs: List, cardt):
@@ -13,27 +18,54 @@ def select(cs: List, cardt):
             if index < 0:
                 break
             index += 3
-            a = cardt >> 11 + 1
+            a = (cardt >> 12) + 1
             if cou >= a and index > num:
                 for i in range(num + 1, index + 1):
-                    result.append([c for c in range(i - a, i + 1)])
+                    r = [c for c in range(i - a + 1, i + 1)]
+                    result.append((r, selectCount(cs, r)))
+    if ct.startswith('type_two_continuity'):
+        while True:
+            index, cou = selectTwo(arr)
+            if index < 0:
+                break
+            index += 3
+            a = (cardt >> 12) - 9
+            if cou >= a and index > num:
+                for i in range(num + 1, index + 1):
+                    r = [c for c in range(i - a + 1, i + 1)]
+                    result.append((r, selectCount(cs, r)))
+    if cardType.type_three_continuity_two < cardt < cardType.type_three_with_one:
+        while True:
+            index, cou = selectThree(arr)
+            if index < 0:
+                break
+            index += 3
+            a = (cardt >> 12) - 0x14
+            if cou >= a and index > num:
+                for i in range(num + 1, index + 1):
+                    r = [c for c in range(i - a + 1, i + 1)]
+                    result.append((r, selectCount(cs, r)))
     return result
 
 
-def encodeCard(cs: List):
+def encodeCard(cs: List, delCard=[]):
     arr = [0 for _ in range(15)]
     for i in cs:
         arr[i - 3] += 1
+
+    for i in delCard:
+        arr[i - 3] -= 1
     return arr
 
 
-def selectCount(cs: List):
+def selectCount(cs: List, delCard=[]):
     """
     获取手牌出完的最小的出牌数
+    :param delCard:
     :param cs:
     :return:
     """
-    arr = encodeCard(cs)
+    arr = encodeCard(cs, delCard)
     count = 0
     if arr[13] == 1 or arr[14] == 1:
         if arr[13] == 1 and arr[14] == 1:
@@ -64,12 +96,12 @@ def selectCount(cs: List):
 
 
 def _selectCount(arr: List):
-
     def recovery(ar: [], index, cou, de):
         for i in range(index - cou + 1, index + 1):
             ar[i] += de
 
     def oneCount(ar: [], mc=54):
+        print("this is oneCount aaaaabbbaaa")
         index, cou = selectOne(ar)
         if index < 0:
             c = 0
@@ -140,7 +172,7 @@ def _selectCount(arr: List):
             ar[i] += 3
             cou -= 1
             # leftCount = min(leftCount, countThree(ar[: i + 1], minC - 1) - 0.49 * cou)
-            f, cc = splitCard(ar, countThree, minC - 1) - 0.49 * cou
+            f, cc = splitCard(ar, countThree, minC - 1)
             cc -= 0.49 * cou
             if f:
                 cc = cc - rightCount
@@ -161,10 +193,42 @@ def _selectCount(arr: List):
     def splitCard(ar: [], ff, minC):
         for index, val in enumerate(ar):
             if val == 0:
-                return False, ff(ar[:index + 1], minC)
-        return True, ff(ar, minC)
+                return False, getcache(ar[:index + 1], ff, minC)
+        return True, getcache(ar, ff, minC)
 
-    return countFour(arr, oneCount(arr))
+    def getcache(ar: [], ff, minC):
+        if len(ar) > 15:
+            return ff(ar, minC)
+
+        aa = 0
+        for i in ar:
+            if i == 0:
+                break
+            aa = (aa << 2) + i - 1
+        global cacheCardCount
+        if cacheCardCount.__contains__(aa):
+            return cacheCardCount.get(aa)
+        result = ff(ar, minC)
+        cacheCardCount[aa] = result
+        global flagChangeCache
+        flagChangeCache = True
+        return result
+
+    global flagChangeCache
+    global cacheCardCount
+    flagChangeCache = False
+    if len(cacheCardCount) == 0:
+        if os.path.exists('CacheCardCount.tmp'):
+            cacheCardCount = pickle.load(open('CacheCardCount.tmp', 'rb'))
+    # re = countFour(arr, len(arr))
+    re = getcache(arr, countFour, len(arr))
+    if flagChangeCache:
+        # 保存改动信息
+        with open('CacheCardCount.tmp', 'wb') as g:
+            pickle.dump(cacheCardCount, g)
+        flagChangeCache = False
+
+    return re
 
 
 def selectFour(ar: []):
@@ -231,9 +295,12 @@ if __name__ == '__main__':
     # print(cs['landlord_down'], selectCount(cs['landlord_down']))
     # a = [8, 8, 8, 9, 9, 10, 10, 11, 11, 11, 12, 13, 13, 14]
     # print(selectCount(a))
-    type = cardType.selectCardType([3,4,5,6,7,8])
+
+    type = cardType.selectCardType([3, 4, 5, 6, 7])
     print(type)
     print(cardType.encode(type))
-    card = [3,4,5,6,7,8,9,10,11,12,13,9,10]
-    a = select(card, type)
-    print(a)
+    card = [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 9, 10, 3, 4, 5, 6, 7, 8, 9, 4, 5, 6]
+    a = selectCount(card)
+    b = select(card, type)
+    print(a, b)
+    print(len(cacheCardCount))
