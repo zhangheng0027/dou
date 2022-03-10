@@ -3,22 +3,32 @@ import time
 import cv2
 
 from ai.ocr import orcCount
+from env.player import Player
 
 
-def getP1Card(frame1):
+def getP1Card(player, frame1, src):
 
-    frame1 = frame1[142:156, 26:44]
-    cvt = cv2.cvtColor(frame1, cv2.COLOR_RGB2GRAY)
-    a, thr = cv2.threshold(cvt, 170, 255, cv2.THRESH_BINARY)
-    cv2.imshow("image", thr)
-    cv2.waitKey(0)
+    # frame1 = frame1[142:156, 26:44]
+    # cvt = cv2.cvtColor(frame1, cv2.COLOR_RGB2GRAY)
+    # a, thr = cv2.threshold(cvt, 170, 255, cv2.THRESH_BINARY)
+    count = orcCount(frame1)
+    if count == player.getCount():
+        return
+
+    for index in range(20):
+        offset = (13 * index) + int(index/2) + int(index/8)
+        cv2.imshow("image", frame1[94:94 + 19, 75 + offset:75 + offset + 13])
+
+        cv2.waitKey(0)
     pass
 
 
 
 if __name__ == '__main__':
     frame = cv2.imread("picture/frame_43.0.jpg")
-    getP1Card(frame)
+    p = Player([])
+    a,b = cv2.threshold(cv2.cvtColor(frame, cv2.COLOR_RGB2GRAY), 170, 255, cv2.THRESH_BINARY)
+    getP1Card(p, b, frame)
 
 
 
