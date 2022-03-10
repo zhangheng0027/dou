@@ -7,37 +7,44 @@ from env.player import Player
 
 
 def getP1Card(player, frame1, src):
-
-    # frame1 = frame1[142:156, 26:44]
-    # cvt = cv2.cvtColor(frame1, cv2.COLOR_RGB2GRAY)
-    # a, thr = cv2.threshold(cvt, 170, 255, cv2.THRESH_BINARY)
-    count = orcCount(frame1)
+    c1 = frame1[142:156, 26:44]
+    count = orcCount(c1)
     if count == player.getCount():
         return
 
-    for index in range(20):
-        offset = (13 * index) + int(index/2) + int(index/8)
-        cv2.imshow("image", frame1[94:94 + 19, 75 + offset:75 + offset + 13])
+    # for index in range(20):
+    #     offset = (13 * index) + int(index / 2) + int(index / 8)
+    #     cv2.imshow("image", frame1[94:94 + 19, 75 + offset:75 + offset + 13])
+    #     cv2.waitKey(0)
 
+    for index in range(8):
+        offset = (13 * index) + int(index / 2) + int(index / 8)
+        cv2.imshow("image", frame1[94:94 + 19, 75 + offset:75 + offset + 13])
+        cv2.waitKey(0)
+    pass
+
+
+def getP2Card(player, frame1, src):
+    c2 = frame1[142:156, 687:687 + 18]
+    count = orcCount(c2)
+    if count == player.getCount():
+        return
+    start = 647 - ((13 * count) + int(count / 2) + int(count / 8))
+    for index in range(count):
+        offset = (13 * index) + int(index / 2) + int(index / 8)
+        cv2.imshow("image", frame1[94:94 + 19, start + offset:start + offset + 13])
         cv2.waitKey(0)
     pass
 
 
 
 if __name__ == '__main__':
-    frame = cv2.imread("picture/frame_43.0.jpg")
+    frame = cv2.imread("picture/frame_1.0.jpg")
     p = Player([])
-    a,b = cv2.threshold(cv2.cvtColor(frame, cv2.COLOR_RGB2GRAY), 170, 255, cv2.THRESH_BINARY)
-    getP1Card(p, b, frame)
-
-
-
-
-
-
+    a, b = cv2.threshold(cv2.cvtColor(frame, cv2.COLOR_RGB2GRAY), 170, 255, cv2.THRESH_BINARY)
+    getP2Card(p, b, frame)
 
 # cap = cv2.VideoCapture('E:\\test\\1.mp4')
-
 
 
 #
